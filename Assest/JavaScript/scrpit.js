@@ -8,31 +8,57 @@ currentDayElement.textContent = currentDate;
 // Display current day in the format of date/ Month
 $("#currentDay").text(dayjs().format("dddd, MMMM D"));
 
-
 $(document).ready(function () {
     // Function to generate time blocks for standard business hours
-    function TimeBlocks() {
-        const container = $(".container-lg");
-        if (container.length === 0) return;
+    function generateTimeBlocks() {
+        const container = $("#time-blocks-container");
+        container.empty(); // Clear previous content before regenerating
 
-        // Check if time blocks have already been generated
-        if ($(".time-block").length === 0) {
-            // Let time be from 9am to 5pm. 
-            for (let hour = 9; hour <= 17; hour++) {
-                const blockId = `hour-${hour}`;
-                const timeBlock = $(`
-          <div id="${blockId}" class="row time-block">
-            <div class="col-2 col-md-1 hour text-center py-3">${hour > 12 ? hour - 12 + 'PM' : (hour === 12 ? '12PM' : hour + 'AM')}</div>
-            <textarea class="col-8 col-md-10 description" rows="3"></textarea>
-            <button class="btn saveBtn col-2 col-md-1" aria-label="save">
-              <i class="fas fa-save" aria-hidden="true"></i>
-            </button>
-          </div>
-        `);
-                container.append(timeBlock);
+        // Generate time blocks for hours from 9am to 5pm
+        for (let hour = 9; hour <= 17; hour++) {
+            const blockId = `hour-${hour}`;
+            const timeBlock = $(`
+                <div id="${blockId}" class="row time-block">
+                    <!-- Include the hour label, textarea, and save button -->
+                    <div class="col-2 col-md-1 hour text-center py-3">${hour > 12 ? hour - 12 + 'PM' : (hour === 12 ? '12PM' : hour + 'AM')}</div>
+                    <textarea id="event-${hour}" class="col-8 col-md-10 description" rows="3"></textarea>
+                    <button class="btn saveBtn col-2 col-md-1" onclick="saveEvent('${hour}')" aria-label="save">
+                        <i class="fas fa-save" aria-hidden="true"></i>
+                    </button>
+                </div>
+            `);
+            container.append(timeBlock);
+        }
+    }
+    $(document).on("click", ".saveBtn", function () {
+        const hour = $(this).closest(".time-block").attr("id").split("-")[1];
+        const eventText = $(`#event-${hour}`).val();
+        localStorage.setItem(`event-${hour}`, eventText);
+    });
+
+    // Event listener for entering events when a textarea is clicked
+    $(document).on("click", ".description", function () {
+        // Implement any specific functionality when the textarea is clicked (if needed)
+    });
+
+    // Function to save event to local storage
+    function saveEvent(hour) {
+        const eventText = $(`#event-${hour}`).val(); // Get event text from textarea
+        localStorage.setItem(`event-${hour}`, eventText); // Save event text to local storage
+    }
+
+    // Function to load events from local storage and display them on page load
+    function loadEvents() {
+        for (let hour = 9; hour <= 17; hour++) {
+            const savedEvent = localStorage.getItem(`event-${hour}`); // Retrieve saved event from local storage
+            if (savedEvent) {
+                $(`#event-${hour}`).val(savedEvent); // Display saved event in the textarea
             }
         }
     }
+
+    
+
 
     // Function to update time block classes based on current time, Also to Highligh the time of the day, my adding gray, red or green (Each representing a meaning)
     function updateBlocks() {
@@ -56,22 +82,23 @@ $(document).ready(function () {
     }
 
     // Generate time blocks initially
-    TimeBlocks();
+    generateTimeBlocks();
     updateBlocks();
-
-    // Update time blocks on scroll
-    $(window).on("scroll", function () {
-        // Check if user has scrolled to a certain position to display the changes in the Scheduler.
-        var scrollPosition = $(window).scrollTop() + $(window).height();
-        var documentHeight = $(document).height();
-
-        if (scrollPosition >= documentHeight / 2) {
-            TimeBlocks();
-            updateBlocks();
-        }
-    });
-
-    // Update time blocks every minute. This isn't a required code, however will be useful when determining the color code for past, present and future. 
-    setInterval(updateBlocks, 60000); // Update every minute
+    loadEvents();
 });
+
+// Update time blocks on scroll
+$(window).on("scroll", function () {
+    // Check if user has scrolled to a certain position to display the changes in the Scheduler.
+    var scrollPosition = $(window).scrollTop() + $(window).height();
+    var documentHeight = $(document).height();
+
+    if (scrollPosition >= documentHeight / 2) {
+        generateTimeBlocks();
+        updateBlocks();
+    }
+});
+
+// Update time blocks every minute. This isn't a required code, however will be useful when determining the color code for past, present and future. 
+setInterval(updateBlocks, 60000); // Update every minute
 
