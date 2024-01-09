@@ -18,7 +18,7 @@ When users open the programme, they are greeted with a wel-organized schedule gr
 ## Languages Used 
 HTML 
 CSS 
-Javascrpit
+Javascrpit / JQuery
 
 ## Screen Shots 
 ./Assest/Images/WorkDayScheduler 1.png

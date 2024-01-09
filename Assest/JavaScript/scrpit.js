@@ -1,11 +1,9 @@
 const currentDayElement = document.getElementById("currentDay");
 
-
-
 // Gets current date and prints it on the brower 
 const currentDate = Date.now();
 currentDayElement.textContent = currentDate;
-// Display current day in the format of date/ Month
+// Display current day in the format of Day/ Month / Date 
 $("#currentDay").text(dayjs().format("dddd, MMMM D"));
 
 $(document).ready(function () {
@@ -17,28 +15,27 @@ $(document).ready(function () {
         // Generate time blocks for hours from 9am to 5pm
         for (let hour = 9; hour <= 17; hour++) {
             const blockId = `hour-${hour}`;
+            // Creates and edits hour label, textarea, and save button
             const timeBlock = $(`
                 <div id="${blockId}" class="row time-block">
-                    <!-- Include the hour label, textarea, and save button -->
+                    <!-- Determins if the hour is AM or PM -->
                     <div class="col-2 col-md-1 hour text-center py-3">${hour > 12 ? hour - 12 + 'PM' : (hour === 12 ? '12PM' : hour + 'AM')}</div>
                     <textarea id="event-${hour}" class="col-8 col-md-10 description" rows="3"></textarea>
+                    <!-- Save button is created and on-click added -->
                     <button class="btn saveBtn col-2 col-md-1" onclick="saveEvent('${hour}')" aria-label="save">
                         <i class="fas fa-save" aria-hidden="true"></i>
                     </button>
                 </div>
             `);
+            // Appends it to the containers of timeBLock
             container.append(timeBlock);
         }
     }
+    // Event Lister on Save Button to Store in Local Storage
     $(document).on("click", ".saveBtn", function () {
         const hour = $(this).closest(".time-block").attr("id").split("-")[1];
         const eventText = $(`#event-${hour}`).val();
         localStorage.setItem(`event-${hour}`, eventText);
-    });
-
-    // Event listener for entering events when a textarea is clicked
-    $(document).on("click", ".description", function () {
-        // Implement any specific functionality when the textarea is clicked (if needed)
     });
 
     // Function to save event to local storage
@@ -47,7 +44,7 @@ $(document).ready(function () {
         localStorage.setItem(`event-${hour}`, eventText); // Save event text to local storage
     }
 
-    // Function to load events from local storage and display them on page load
+    // Function to load events from local storage and display them on page load. AKA Allows the User to see the saved items. 
     function loadEvents() {
         for (let hour = 9; hour <= 17; hour++) {
             const savedEvent = localStorage.getItem(`event-${hour}`); // Retrieve saved event from local storage
@@ -56,8 +53,6 @@ $(document).ready(function () {
             }
         }
     }
-
-    
 
 
     // Function to update time block classes based on current time, Also to Highligh the time of the day, my adding gray, red or green (Each representing a meaning)
@@ -81,23 +76,11 @@ $(document).ready(function () {
         });
     }
 
-    // Generate time blocks initially
     generateTimeBlocks();
     updateBlocks();
     loadEvents();
 });
 
-// Update time blocks on scroll
-$(window).on("scroll", function () {
-    // Check if user has scrolled to a certain position to display the changes in the Scheduler.
-    var scrollPosition = $(window).scrollTop() + $(window).height();
-    var documentHeight = $(document).height();
-
-    if (scrollPosition >= documentHeight / 2) {
-        generateTimeBlocks();
-        updateBlocks();
-    }
-});
 
 // Update time blocks every minute. This isn't a required code, however will be useful when determining the color code for past, present and future. 
 setInterval(updateBlocks, 60000); // Update every minute
