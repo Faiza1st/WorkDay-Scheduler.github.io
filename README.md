@@ -28,6 +28,4 @@ Javascrpit / JQuery
 
 
 ## Deployed link 
-
-
-## 
+https://faiza1st.github.io/WorkDayScheduler.github.io/
